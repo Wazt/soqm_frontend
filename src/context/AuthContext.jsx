@@ -1,23 +1,21 @@
 import { createContext, useState, useEffect, useCallback } from "react"
 import axiosClient, { setAuthInterceptors } from "@/api/axiosClient"
 import { getToken, saveToken, removeToken, decodeToken } from "@/utils/tokenUtils"
-import { IS_DEMO, DEMO_USER } from "@/lib/demo"
-
-const DEMO_TOKEN = "demo-session"
+import { IS_DEMO, demoLogin, getDemoSession, clearDemoSession } from "@/lib/demo"
 
 export const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  // Initialize user directly from localStorage token — survives page refresh
+  // Initialize user directly from localStorage (token or demo session) — survives page refresh
   const [user, setUser] = useState(() => {
+    if (IS_DEMO) return getDemoSession()
     const token = getToken()
-    if (!token) return null
-    if (IS_DEMO && token === DEMO_TOKEN) return DEMO_USER
-    return decodeToken(token)
+    return token ? decodeToken(token) : null
   })
 
   const logout = useCallback(() => {
     removeToken()
+    if (IS_DEMO) clearDemoSession()
     setUser(null)
   }, [])
 
@@ -36,9 +34,10 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     if (IS_DEMO) {
-      // Backend-less preview deployment: any credentials sign in as the demo user
-      saveToken(DEMO_TOKEN)
-      setUser({ ...DEMO_USER, email: email || DEMO_USER.email })
+      // Backend-less preview: simulates the real auth contract (test accounts,
+      // 403 Invalid Credentials on bad input)
+      const demoUser = await demoLogin(email, password)
+      setUser(demoUser)
       return
     }
     const response = await axiosClient.post("/auth/login/", { email, password })

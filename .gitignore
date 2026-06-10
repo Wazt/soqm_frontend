@@ -34,3 +34,4 @@ Desktop.ini
 # Misc
 .DS_Store
 *.local
+.vercel

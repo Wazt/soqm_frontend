@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { ROUTES } from "@/router/routes"
-import { IS_DEMO } from "@/lib/demo"
+import { IS_DEMO, DEMO_USERS, DEMO_PASSWORD } from "@/lib/demo"
 
 export function LoginForm() {
   const { login } = useAuth()
@@ -83,11 +83,30 @@ export function LoginForm() {
         </p>
 
         {IS_DEMO && (
-          <div className="flex items-start gap-2 rounded-lg bg-[#F7F4FC] border border-[#E3D9F5] px-3.5 py-2.5 mb-5 -mt-3">
-            <span className="text-[11px] leading-relaxed text-[#4A3D6A]">
-              <strong className="text-[#3B1F6A] font-semibold">Demo deployment</strong> — no
-              backend connected. Enter any email and password to explore the app.
-            </span>
+          <div className="rounded-lg bg-[#F7F4FC] border border-[#E3D9F5] px-3.5 py-3 mb-5 -mt-3">
+            <p className="text-[11px] leading-relaxed text-[#4A3D6A] mb-2">
+              <strong className="text-[#3B1F6A] font-semibold">Test environment</strong> — the
+              real auth contract is simulated. Pick an account (password{" "}
+              <code className="font-semibold text-[#3B1F6A]">{DEMO_PASSWORD}</code>, prefilled);
+              wrong credentials are rejected like the live API, and roles carry the
+              backend's real permissions.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {DEMO_USERS.map((account) => (
+                <button
+                  key={account.email}
+                  type="button"
+                  onClick={() => { setEmail(account.email); setPassword(DEMO_PASSWORD) }}
+                  className={`text-[10px] font-medium px-2 py-1 rounded-full border transition-colors ${
+                    email === account.email
+                      ? "bg-[#3B1F6A] text-white border-[#3B1F6A]"
+                      : "bg-white text-[#3B1F6A] border-[#D8D2E8] hover:border-[#7B3FBE]"
+                  }`}
+                >
+                  {account.role.replace(/_/g, " ")}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

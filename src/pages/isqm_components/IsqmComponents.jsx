@@ -25,10 +25,22 @@ export default function IsqmComponents() {
   }
 
   if (error) {
+    const message = error.response?.data?.message
+    const accessDenied = error.response?.status === 403
     return (
-      <div className="flex items-center justify-center h-64 text-destructive gap-2">
-        <AlertCircle className="size-4" />
-        <span className="text-sm">Failed to load components.</span>
+      <div className="flex flex-col items-center justify-center h-64 gap-2 text-center">
+        <div className="flex items-center gap-2 text-destructive">
+          <AlertCircle className="size-4" />
+          <span className="text-sm font-medium">
+            {message ? `${message} — couldn't load components.` : "Failed to load components."}
+          </span>
+        </div>
+        {accessDenied && (
+          <p className="text-xs text-muted-foreground max-w-sm">
+            Your role doesn't have the <code>component:read</code> permission. Sign in as
+            SUPER ADMIN, ADMIN, MANAGER or OPERATOR to view SOQM components.
+          </p>
+        )}
       </div>
     )
   }

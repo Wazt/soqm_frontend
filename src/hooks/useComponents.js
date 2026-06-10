@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { getComponents } from "@/api/endpoints/componentsApi"
-import { IS_DEMO, DEMO_COMPONENTS } from "@/lib/demo"
+import { IS_DEMO, demoGetComponents } from "@/lib/demo"
 
 export function useComponents() {
   const [components, setComponents] = useState([])
@@ -8,18 +8,15 @@ export function useComponents() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (IS_DEMO) {
-      // Backend-less preview: resolve locally with a brief, realistic delay
-      const timer = setTimeout(() => {
-        setComponents(DEMO_COMPONENTS)
-        setLoading(false)
-      }, 400)
-      return () => clearTimeout(timer)
-    }
-    getComponents()
-      .then((res) => setComponents(res.data))
-      .catch((err) => setError(err))
-      .finally(() => setLoading(false))
+    // Demo path simulates the real API including 403 Access Denied for
+    // roles without the component:read permission
+    const fetcher = IS_DEMO ? demoGetComponents() : getComponents().then((res) => res.data)
+    let cancelled = false
+    fetcher
+      .then((data) => { if (!cancelled) setComponents(data) })
+      .catch((err) => { if (!cancelled) setError(err) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
   }, [])
 
   return { components, loading, error }
