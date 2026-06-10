@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
+import { ROUTES } from "@/router/routes"
+import { IS_DEMO } from "@/lib/demo"
 
 export function LoginForm() {
   const { login } = useAuth()
@@ -16,9 +18,14 @@ export function LoginForm() {
   setLoading(true)
   try {
     await login(email, password)
-    navigate("/dashboard")
+    navigate(ROUTES.DASHBOARD)
   } catch (err) {
-    const msg = err?.response?.data?.detail || "Invalid credentials. Please try again."
+    // Backend app errors use { message, details }; HTTPBearer/validation use { detail }
+    const data = err?.response?.data
+    const msg =
+      (typeof data?.message === "string" && data.message) ||
+      (typeof data?.detail === "string" && data.detail) ||
+      "Invalid credentials. Please try again."
     setError(msg)
   } finally {
     setLoading(false)
@@ -74,6 +81,15 @@ export function LoginForm() {
         <p className="text-[#8A859A] text-sm mb-7">
           Use your Grant Thornton credentials to continue.
         </p>
+
+        {IS_DEMO && (
+          <div className="flex items-start gap-2 rounded-lg bg-[#F7F4FC] border border-[#E3D9F5] px-3.5 py-2.5 mb-5 -mt-3">
+            <span className="text-[11px] leading-relaxed text-[#4A3D6A]">
+              <strong className="text-[#3B1F6A] font-semibold">Demo deployment</strong> — no
+              backend connected. Enter any email and password to explore the app.
+            </span>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>

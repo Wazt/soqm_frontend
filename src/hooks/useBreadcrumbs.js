@@ -1,11 +1,23 @@
 import { useLocation } from "react-router-dom"
 
 const ROUTE_LABELS = {
-  "":         "Dashboard",
-  "dashboard": "Dashboard",
-  "users":    "Users",
-  "settings": "Settings",
-  // add more as you add pages
+  "":           "Dashboard",
+  "dashboard":  "Dashboard",
+  "departments": "Departments",
+  "employees":  "Employees & Roles",
+  "components": "SOQM Components",
+  "objectives": "Quality Objectives",
+  "processes":  "Processes",
+  "procedures": "Procedures",
+  "risks":      "Risks & Responses",
+  "monitoring": "Evidence & Monitoring",
+  "eqr":        "EQR Reviews",
+  "findings":   "Findings & Remediations",
+  "tasks":      "Tasks",
+  "alerts":     "Quality Alerts",
+  "reports":    "Weekly Reports",
+  "documents":  "Document Library",
+  "chatbot":    "SOQM Chatbot",
 }
 
 export function useBreadcrumbs() {

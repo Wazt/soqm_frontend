@@ -1,8 +1,8 @@
 import axios from "axios"
-import { getToken, removeToken } from "@/utils/tokenUtils"
+import { getToken } from "@/utils/tokenUtils"
 
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL || "/api/v1",
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 })
@@ -21,11 +21,13 @@ export function setAuthInterceptors(refreshTokenFn, logoutFn) {
   })
 
   // On 401 → try refresh → retry original request → else logout
+  // Auth endpoints are excluded: a failed login/refresh must not trigger another refresh.
   axiosClient.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config
-      if (error.response?.status === 401 && !originalRequest._retry) {
+      const isAuthCall = originalRequest?.url?.includes("/auth/")
+      if (error.response?.status === 401 && !originalRequest._retry && !isAuthCall) {
         originalRequest._retry = true
         try {
           const newToken = await refreshTokenFn()

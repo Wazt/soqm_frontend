@@ -14,7 +14,8 @@ export function removeToken() {
 
 export function decodeToken(token) {
   try {
-    const payload = token.split(".")[1]
+    // JWT payloads are base64url-encoded — atob only accepts standard base64
+    const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")
     return JSON.parse(atob(payload))
   } catch {
     return null
