@@ -150,14 +150,14 @@ export default function DocumentReviewPage() {
       ) : (
         <>
           {/* Verdict card */}
-          <div className="rounded-xl border border-border bg-white p-6">
+          <div className="rounded-xl border border-border bg-card p-6">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
               <div className="flex shrink-0 flex-col items-center justify-center rounded-xl bg-[#F7F4FC] px-8 py-5">
                 <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
                   Overall Score
                 </span>
                 <div className="mt-1 flex items-end gap-1">
-                  <span className="text-5xl font-semibold tracking-tight text-[#1E0A3C]">
+                  <span className="text-5xl font-semibold tracking-tight text-foreground">
                     {review.overallScore}
                   </span>
                   <span className="pb-1.5 text-base text-muted-foreground">
@@ -166,7 +166,7 @@ export default function DocumentReviewPage() {
                 </div>
               </div>
               <div className="space-y-3">
-                <p className="text-base font-medium leading-snug text-[#1E0A3C]">
+                <p className="text-base font-medium leading-snug text-foreground">
                   {review.verdict}
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
@@ -192,10 +192,10 @@ export default function DocumentReviewPage() {
                 return (
                   <div
                     key={criterion.name}
-                    className="space-y-3 rounded-xl border border-border bg-white p-5 hover:border-[#C4B0E8] hover:shadow-md transition-all"
+                    className="space-y-3 rounded-xl border border-border bg-card p-5 hover:border-[#C4B0E8] hover:shadow-md transition-all"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-sm font-medium leading-snug text-[#1E0A3C]">
+                      <h3 className="text-sm font-medium leading-snug text-foreground">
                         {criterion.name}
                       </h3>
                       <span className={`text-sm font-semibold ${tone.text}`}>
@@ -230,13 +230,13 @@ export default function DocumentReviewPage() {
                 return (
                   <div
                     key={finding.id}
-                    className="space-y-3 rounded-xl border border-border bg-white p-5"
+                    className="space-y-3 rounded-xl border border-border bg-card p-5"
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <StatusBadge tone={severity.tone}>
                         {severity.label}
                       </StatusBadge>
-                      <h3 className="text-sm font-medium text-[#1E0A3C]">
+                      <h3 className="text-sm font-medium text-foreground">
                         {finding.title}
                       </h3>
                     </div>
@@ -249,7 +249,7 @@ export default function DocumentReviewPage() {
                     </span>
                     <div className="flex items-start gap-2">
                       <CornerDownRight className="mt-0.5 size-3.5 shrink-0 text-[#7B3FBE]" />
-                      <p className="text-[13px] leading-relaxed text-[#1E0A3C]">
+                      <p className="text-[13px] leading-relaxed text-foreground">
                         <span className="font-medium">Recommendation: </span>
                         {finding.recommendation}
                       </p>
@@ -269,9 +269,9 @@ export default function DocumentReviewPage() {
             <SectionTitle count={review.sources.length}>
               Sources Consulted
             </SectionTitle>
-            <div className="divide-y divide-border rounded-xl border border-border bg-white">
+            <div className="divide-y divide-border rounded-xl border border-border bg-card">
               <div className="px-5 py-4">
-                <p className="text-sm font-medium text-[#1E0A3C]">
+                <p className="text-sm font-medium text-foreground">
                   Retrieved passages
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -285,7 +285,7 @@ export default function DocumentReviewPage() {
                   className="space-y-2 px-5 py-4"
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-medium text-[#1E0A3C]">
+                    <p className="text-sm font-medium text-foreground">
                       {source.document}
                       <span className="ml-2 text-xs font-normal text-muted-foreground">
                         p. {source.page}

@@ -141,7 +141,7 @@ export default function AlertsPage() {
         <StatCard label="Resolved" value={resolvedCount} hint="Closed without escalation" icon={CheckCheck} tone="success" />
       </div>
 
-      <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-white">
+      <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
         {alerts.map((alert) => {
           const severity = SEVERITIES[alert.severity]
           const Icon = severity.icon
@@ -163,7 +163,7 @@ export default function AlertsPage() {
               <div className="min-w-0 flex-1 space-y-1.5">
                 <p
                   className={`text-sm leading-snug ${
-                    alert.unread ? "font-semibold text-[#1E0A3C]" : "font-medium text-[#1E0A3C]/80"
+                    alert.unread ? "font-semibold text-foreground" : "font-medium text-foreground/80"
                   }`}
                 >
                   {alert.title}

@@ -99,7 +99,7 @@ function KpiRow({ kpi }) {
     <div className="flex items-center justify-between gap-2">
       <span className="text-xs text-muted-foreground">{kpi.label}</span>
       <span className="flex items-center gap-1.5">
-        <span className="text-sm font-medium text-[#1E0A3C]">{kpi.value}</span>
+        <span className="text-sm font-medium text-foreground">{kpi.value}</span>
         <span
           className={`flex items-center gap-0.5 text-[11px] font-medium ${
             up ? "text-[#2E7D52]" : "text-[#C4336E]"
@@ -129,7 +129,7 @@ export default function ReportsPage() {
           {SAMPLE_REPORTS.map((report) => (
             <div
               key={report.id}
-              className={`flex flex-col gap-4 rounded-xl border bg-white p-5 transition-all hover:shadow-md ${
+              className={`flex flex-col gap-4 rounded-xl border bg-card p-5 transition-all hover:shadow-md ${
                 report.featured
                   ? "border-[#C4B0E8] shadow-sm"
                   : "border-border hover:border-[#C4B0E8]"
@@ -152,7 +152,7 @@ export default function ReportsPage() {
               </div>
 
               <div className="space-y-1">
-                <h3 className="text-sm font-semibold text-[#1E0A3C]">
+                <h3 className="text-sm font-semibold text-foreground">
                   Week {report.week} — {report.year}
                 </h3>
                 <p className="flex items-center gap-1.5 text-xs text-muted-foreground">

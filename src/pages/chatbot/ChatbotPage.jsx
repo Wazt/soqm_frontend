@@ -128,7 +128,7 @@ function MessageBlocks({ blocks }) {
       {blocks.map((block, i) => {
         if (block.type === "heading") {
           return (
-            <p key={i} className="text-[13px] font-semibold text-[#1E0A3C] pt-0.5">
+            <p key={i} className="text-[13px] font-semibold text-foreground pt-0.5">
               {block.text}
             </p>
           )
@@ -269,14 +269,14 @@ export default function ChatbotPage() {
       <div className="grid gap-4 items-start xl:grid-cols-[minmax(0,1fr)_320px]">
 
         {/* Chat panel */}
-        <div className="flex h-[600px] flex-col overflow-hidden rounded-xl border border-border bg-white">
+        <div className="flex h-[600px] flex-col overflow-hidden rounded-xl border border-border bg-card">
 
           {/* Panel header */}
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <div className="flex items-center gap-2.5">
               <AssistantAvatar />
               <div>
-                <p className="text-sm font-medium text-[#1E0A3C]">
+                <p className="text-sm font-medium text-foreground">
                   Quality Standards Assistant
                 </p>
                 <p className="text-[11px] text-muted-foreground">
@@ -333,7 +333,7 @@ export default function ChatbotPage() {
 
         {/* Right rail — xl screens only */}
         <aside className="hidden xl:block space-y-4">
-          <div className="rounded-xl border border-border bg-white p-5">
+          <div className="rounded-xl border border-border bg-card p-5">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
               How it works
             </p>
@@ -347,7 +347,7 @@ export default function ChatbotPage() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
                         <step.icon className="size-3.5 text-[#7B3FBE]" />
-                        <p className="text-sm font-medium text-[#1E0A3C]">
+                        <p className="text-sm font-medium text-foreground">
                           {step.title}
                         </p>
                       </div>

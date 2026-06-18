@@ -4,11 +4,13 @@ export const ROUTES = {
 
   // Organization
   DEPARTMENTS: "/departments",
+  USERS: "/users",
   EMPLOYEES: "/employees",
 
   // ISQM 1 Compliance
   COMPONENTS: "/components",
   OBJECTIVES: "/objectives",
+  OBJECTIVE_DETAIL: "/objectives/:objectiveId",
 
   // Operations
   PROCESSES: "/processes",
@@ -34,3 +36,4 @@ export const ROUTES = {
 }
 
 export const documentReviewPath = (documentId) => `/documents/${documentId}`
+export const objectiveDetailPath = (objectiveId) => `/objectives/${objectiveId}`

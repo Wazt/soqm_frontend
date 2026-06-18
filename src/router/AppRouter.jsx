@@ -9,8 +9,10 @@ import DashboardPage from "@/pages/dashboard/dashboard"
 import NotFoundPage from "@/pages/NotFoundPage"
 import IsqmComponents from "@/pages/isqm_components/IsqmComponents"
 import DepartmentsPage from "@/pages/departments/DepartmentsPage"
+import UsersPage from "@/pages/users/UsersPage"
 import EmployeesPage from "@/pages/employees/EmployeesPage"
 import ObjectivesPage from "@/pages/objectives/ObjectivesPage"
+import ObjectiveDetailsPage from "@/pages/objectives/ObjectiveDetailsPage"
 import ProcessesPage from "@/pages/processes/ProcessesPage"
 import ProceduresPage from "@/pages/procedures/ProceduresPage"
 import RisksPage from "@/pages/risks/RisksPage"
@@ -42,11 +44,13 @@ export default function AppRouter() {
 
             {/* Organization */}
             <Route path={ROUTES.DEPARTMENTS} element={<DepartmentsPage />} />
+            <Route path={ROUTES.USERS} element={<UsersPage />} />
             <Route path={ROUTES.EMPLOYEES} element={<EmployeesPage />} />
 
             {/* ISQM 1 Compliance */}
             <Route path={ROUTES.COMPONENTS} element={<IsqmComponents />} />
             <Route path={ROUTES.OBJECTIVES} element={<ObjectivesPage />} />
+            <Route path={ROUTES.OBJECTIVE_DETAIL} element={<ObjectiveDetailsPage />} />
 
             {/* Operations */}
             <Route path={ROUTES.PROCESSES} element={<ProcessesPage />} />

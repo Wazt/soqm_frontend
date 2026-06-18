@@ -12,7 +12,7 @@ const TONES = {
 export function StatCard({ label, value, hint, icon: Icon, tone = "purple", children }) {
   const t = TONES[tone] ?? TONES.purple
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border bg-white p-5">
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5">
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
           {label}
@@ -24,7 +24,7 @@ export function StatCard({ label, value, hint, icon: Icon, tone = "purple", chil
         )}
       </div>
       <div>
-        <p className="text-2xl font-semibold text-[#1E0A3C] tracking-tight">{value}</p>
+        <p className="text-2xl font-semibold text-foreground tracking-tight">{value}</p>
         {hint && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
       </div>
       {children}

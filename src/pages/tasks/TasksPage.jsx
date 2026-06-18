@@ -119,8 +119,8 @@ const isOverdue = (iso) => new Date(`${iso}T23:59:59`) < new Date()
 function TaskCard({ task, columnId }) {
   const overdue = columnId !== "done" && isOverdue(task.due)
   return (
-    <div className="space-y-3 rounded-xl border border-border bg-white p-4 hover:border-[#C4B0E8] hover:shadow-md transition-all">
-      <p className="text-sm font-medium text-[#1E0A3C] leading-snug">{task.title}</p>
+    <div className="space-y-3 rounded-xl border border-border bg-card p-4 hover:border-[#C4B0E8] hover:shadow-md transition-all">
+      <p className="text-sm font-medium text-foreground leading-snug">{task.title}</p>
 
       <div className="flex flex-wrap items-center gap-1.5">
         <StatusBadge tone="purple">{task.module}</StatusBadge>
@@ -170,7 +170,7 @@ export default function TasksPage() {
                     {column.label}
                   </span>
                 </div>
-                <span className="rounded-full border border-border bg-white px-2 py-0.5 text-[11px] font-medium text-[#3B1F6A]">
+                <span className="rounded-full border border-border bg-card px-2 py-0.5 text-[11px] font-medium text-[#3B1F6A]">
                   {tasks.length}
                 </span>
               </div>

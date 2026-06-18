@@ -1,195 +1,222 @@
+import { useState } from "react"
+import { Building2, Loader2, AlertCircle, Plus, Network, List as ListIcon } from "lucide-react"
+import { useDepartments } from "@/hooks/useDepartments"
+import { useRole } from "@/hooks/useRole"
+import { createDepartment } from "@/api/endpoints/departmentsApi"
 import { PageHeader } from "@/components/common/PageHeader"
-import { PreviewBanner } from "@/components/common/PreviewBanner"
 import { StatCard } from "@/components/common/StatCard"
-import { StatusBadge } from "@/components/common/StatusBadge"
-import {
-  Building2,
-  Users,
-  Award,
-  BriefcaseBusiness,
-  ShieldCheck,
-  Landmark,
-  Lightbulb,
-  Scale,
-  MonitorCog,
-  HeartHandshake,
-} from "lucide-react"
-
-const SAMPLE_DEPARTMENTS = [
-  {
-    id: "dep-001",
-    name: "Audit & Assurance",
-    description: "Statutory and contractual audits, IFRS reporting and assurance engagements.",
-    head: { name: "Yacine Benmansour", role: "Managing Partner" },
-    headcount: 64,
-    activeEngagements: 31,
-    qualityChampion: "Lina Hadj-Arab",
-    icon: ShieldCheck,
-    color: { bg: "bg-[#EDE9F8]", text: "text-[#3B1F6A]" },
-  },
-  {
-    id: "dep-002",
-    name: "Tax",
-    description: "Corporate tax compliance, transfer pricing and tax advisory services.",
-    head: { name: "Salima Cherifi", role: "Tax Partner" },
-    headcount: 28,
-    activeEngagements: 19,
-    qualityChampion: "Karim Ould-Slimane",
-    icon: Landmark,
-    color: { bg: "bg-[#E8F0FB]", text: "text-[#1E3A6E]" },
-  },
-  {
-    id: "dep-003",
-    name: "Advisory",
-    description: "Transaction services, valuations, restructuring and business consulting.",
-    head: { name: "Thomas Keller", role: "Advisory Partner" },
-    headcount: 22,
-    activeEngagements: 12,
-    qualityChampion: "Nadia Boukhalfa",
-    icon: Lightbulb,
-    color: { bg: "bg-[#FDF3E7]", text: "text-[#7A3E0A]" },
-  },
-  {
-    id: "dep-004",
-    name: "Quality & Risk Management",
-    description: "ISQM 1 system of quality management, ethics, independence and EQR oversight.",
-    head: { name: "Amel Ferhat", role: "Quality Partner" },
-    headcount: 9,
-    activeEngagements: 6,
-    qualityChampion: "Sofiane Mebarki",
-    icon: Scale,
-    color: { bg: "bg-[#EAF3EE]", text: "text-[#1A4731]" },
-  },
-  {
-    id: "dep-005",
-    name: "IT & Operations",
-    description: "Technological resources, audit tooling, information security and facilities.",
-    head: { name: "Mehdi Zeroual", role: "IT Director" },
-    headcount: 11,
-    activeEngagements: 4,
-    qualityChampion: "Sarah Lindqvist",
-    icon: MonitorCog,
-    color: { bg: "bg-[#E8F5F5]", text: "text-[#1A4747]" },
-  },
-  {
-    id: "dep-006",
-    name: "HR & Talent",
-    description: "Recruitment, training, performance evaluation and professional development.",
-    head: { name: "Imene Bouzid", role: "HR Director" },
-    headcount: 7,
-    activeEngagements: 3,
-    qualityChampion: "Rachid Ait-Kaci",
-    icon: HeartHandshake,
-    color: { bg: "bg-[#FDE8F0]", text: "text-[#7A1E3E]" },
-  },
-]
-
-const TOTAL_STAFF = SAMPLE_DEPARTMENTS.reduce((sum, d) => sum + d.headcount, 0)
-const OPEN_POSITIONS = 8
+import { EmptyState } from "@/components/common/EmptyState"
+import { Modal } from "@/components/common/Modal"
+import { TextField, SelectField } from "@/components/common/Field"
+import { Button } from "@/components/ui/button"
 
 export default function DepartmentsPage() {
+  const { departments, loading, error, refetch } = useDepartments()
+  const { isAdmin } = useRole()
+  const [view, setView] = useState("chart")
+  const [createOpen, setCreateOpen] = useState(false)
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center gap-2 text-muted-foreground">
+        <Loader2 className="size-4 animate-spin" />
+        <span className="text-sm">Loading departments…</span>
+      </div>
+    )
+  }
+  if (error) {
+    return (
+      <div className="flex h-64 items-center justify-center gap-2 text-destructive">
+        <AlertCircle className="size-4" />
+        <span className="text-sm font-medium">Failed to load departments.</span>
+      </div>
+    )
+  }
+
+  const roots = departments.filter((d) => !d.parent_dept)
+  const subs = departments.length - roots.length
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Departments"
-        description="Service lines and support functions of the firm, with their quality champions."
-        badge={`${SAMPLE_DEPARTMENTS.length} Departments`}
+        description="The firm's organisational structure and reporting hierarchy."
+        actions={
+          <div className="flex items-center gap-2">
+            <div className="flex items-center rounded-lg border border-border bg-card p-0.5">
+              <ViewButton active={view === "chart"} onClick={() => setView("chart")} icon={Network}>Org chart</ViewButton>
+              <ViewButton active={view === "list"} onClick={() => setView("list")} icon={ListIcon}>List</ViewButton>
+            </div>
+            {isAdmin && (
+              <Button onClick={() => setCreateOpen(true)} size="default">
+                <Plus className="size-4" /> Add department
+              </Button>
+            )}
+          </div>
+        }
       />
 
-      <PreviewBanner />
-
-      {/* Stat strip */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Departments"
-          value={SAMPLE_DEPARTMENTS.length}
-          hint="Service lines and support functions"
-          icon={Building2}
-          tone="purple"
-        />
-        <StatCard
-          label="Total staff"
-          value={TOTAL_STAFF}
-          hint="Across all departments"
-          icon={Users}
-          tone="info"
-        />
-        <StatCard
-          label="Quality champions"
-          value={SAMPLE_DEPARTMENTS.length}
-          hint="One designated per department"
-          icon={Award}
-          tone="success"
-        />
-        <StatCard
-          label="Open positions"
-          value={OPEN_POSITIONS}
-          hint="Currently under recruitment"
-          icon={BriefcaseBusiness}
-          tone="warning"
-        />
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard label="Total departments" value={departments.length} icon={Building2} tone="purple" />
+        <StatCard label="Top-level units" value={roots.length} icon={Network} tone="info" />
+        <StatCard label="Sub-departments" value={subs} icon={Building2} tone="teal" />
       </div>
 
-      {/* Department cards */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {SAMPLE_DEPARTMENTS.map((dept) => {
-          const Icon = dept.icon
-          return (
-            <div
-              key={dept.id}
-              className="group flex flex-col gap-4 rounded-xl border border-border bg-white p-5 hover:border-[#C4B0E8] hover:shadow-md transition-all duration-200"
-            >
-              {/* Icon + headcount */}
-              <div className="flex items-center justify-between">
-                <div className={`flex size-10 items-center justify-center rounded-lg ${dept.color.bg}`}>
-                  <Icon className={`size-5 ${dept.color.text}`} />
-                </div>
-                <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full ${dept.color.bg} ${dept.color.text}`}>
-                  {dept.headcount} staff
-                </span>
-              </div>
+      {departments.length === 0 ? (
+        <EmptyState icon={Building2} title="No departments yet" description="Create the first department to start building the org chart." />
+      ) : view === "chart" ? (
+        <div className="rounded-xl border border-border bg-card p-6">
+          <div className="overflow-x-auto pb-2">
+            <ul className="org-tree min-w-max">
+              {roots.map((r) => (
+                <OrgNode key={r.id} dept={r} departments={departments} />
+              ))}
+            </ul>
+          </div>
+        </div>
+      ) : (
+        <DeptList departments={departments} />
+      )}
 
-              {/* Name + description */}
-              <div className="space-y-1">
-                <h3 className="text-sm font-semibold text-[#1E0A3C] leading-snug">
-                  {dept.name}
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {dept.description}
-                </p>
-              </div>
-
-              {/* Head + engagements */}
-              <div className="grid grid-cols-2 gap-3 border-t border-border pt-4">
-                <div className="space-y-0.5">
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                    Head
-                  </p>
-                  <p className="text-sm font-medium text-[#1E0A3C]">{dept.head.name}</p>
-                  <p className="text-xs text-muted-foreground">{dept.head.role}</p>
-                </div>
-                <div className="space-y-0.5">
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                    Engagements
-                  </p>
-                  <p className="text-sm font-medium text-[#1E0A3C]">{dept.activeEngagements}</p>
-                  <p className="text-xs text-muted-foreground">currently active</p>
-                </div>
-              </div>
-
-              {/* Quality champion */}
-              <div className="flex items-center justify-between mt-auto">
-                <StatusBadge tone="warning" withDot>
-                  QUALITY CHAMPION
-                </StatusBadge>
-                <span className="text-xs font-medium text-[#3B1F6A]">
-                  {dept.qualityChampion}
-                </span>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      <CreateDepartmentModal open={createOpen} onOpenChange={setCreateOpen} departments={departments} onCreated={refetch} />
     </div>
+  )
+}
+
+function ViewButton({ active, onClick, icon: Icon, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors ${
+        active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      <Icon className="size-3.5" /> {children}
+    </button>
+  )
+}
+
+function OrgNode({ dept, departments }) {
+  const children = departments.filter((d) => d.parent_dept === dept.id)
+  const isRoot = !dept.parent_dept
+  return (
+    <li>
+      <div
+        className={`min-w-[150px] rounded-lg border px-4 py-2.5 text-center shadow-sm transition-colors ${
+          isRoot
+            ? "border-transparent bg-primary text-primary-foreground"
+            : "border-border bg-card hover:border-primary/40"
+        }`}
+      >
+        <p className={`text-[9px] font-semibold uppercase tracking-widest ${isRoot ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+          {isRoot ? "Firm" : children.length > 0 ? "Division" : "Team"}
+        </p>
+        <p className={`mt-0.5 text-sm font-medium ${isRoot ? "text-primary-foreground" : "text-foreground"}`}>{dept.name}</p>
+      </div>
+      {children.length > 0 && (
+        <ul>
+          {children.map((c) => (
+            <OrgNode key={c.id} dept={c} departments={departments} />
+          ))}
+        </ul>
+      )}
+    </li>
+  )
+}
+
+function DeptList({ departments }) {
+  const nameById = Object.fromEntries(departments.map((d) => [d.id, d.name]))
+  return (
+    <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border">
+            <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Department</th>
+            <th className="hidden px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-widest text-muted-foreground sm:table-cell">Reports to</th>
+            <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Sub-departments</th>
+          </tr>
+        </thead>
+        <tbody>
+          {departments.map((d) => {
+            const kids = d.children_dept ?? departments.filter((c) => c.parent_dept === d.id).map((c) => ({ id: c.id, name: c.name }))
+            return (
+              <tr key={d.id} className="border-b border-border last:border-b-0 hover:bg-muted/40">
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex size-7 items-center justify-center rounded-md bg-[#EDE9F8]">
+                      <Building2 className="size-3.5 text-[#7B3FBE]" />
+                    </div>
+                    <span className="font-medium text-foreground">{d.name}</span>
+                    {!d.parent_dept && <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">Root</span>}
+                  </div>
+                </td>
+                <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">{d.parent_dept ? nameById[d.parent_dept] ?? "—" : "—"}</td>
+                <td className="px-4 py-3">
+                  {kids.length === 0 ? (
+                    <span className="text-muted-foreground">—</span>
+                  ) : (
+                    <div className="flex flex-wrap gap-1">
+                      {kids.slice(0, 3).map((k) => (
+                        <span key={k.id} className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">{k.name}</span>
+                      ))}
+                      {kids.length > 3 && <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">+{kids.length - 3}</span>}
+                    </div>
+                  )}
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function CreateDepartmentModal({ open, onOpenChange, departments, onCreated }) {
+  const [form, setForm] = useState({ name: "", parent_dept: "" })
+  const [error, setError] = useState("")
+  const [apiError, setApiError] = useState("")
+  const [saving, setSaving] = useState(false)
+
+  function set(key, value) { setForm((f) => ({ ...f, [key]: value })) }
+  async function handleSubmit(ev) {
+    ev.preventDefault()
+    setError("")
+    setApiError("")
+    if (!form.name.trim()) { setError("Department name is required."); return }
+    setSaving(true)
+    try {
+      await createDepartment({ name: form.name.trim(), parent_dept: form.parent_dept || null })
+      setForm({ name: "", parent_dept: "" })
+      onOpenChange(false)
+      await onCreated()
+    } catch (err) {
+      setApiError(err?.response?.data?.message ?? "Failed to create department.")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal open={open} onOpenChange={onOpenChange} title="Add department" description="Create a unit and optionally nest it under a parent.">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <TextField label="Department name" required value={form.name} onChange={(e) => set("name", e.target.value)} error={error} placeholder="e.g. Forensic Advisory" />
+        <SelectField
+          label="Parent department"
+          value={form.parent_dept}
+          onChange={(e) => set("parent_dept", e.target.value)}
+          placeholder="— None (top-level) —"
+          options={departments.map((d) => ({ value: d.id, label: d.name }))}
+        />
+        {apiError && <p className="text-xs text-destructive">{apiError}</p>}
+        <div className="-mx-4 -mb-4 flex justify-end gap-2 rounded-b-xl border-t border-border bg-muted/40 p-4">
+          <Button type="button" variant="outline" size="default" onClick={() => onOpenChange(false)} disabled={saving}>Cancel</Button>
+          <Button type="submit" size="default" disabled={saving}>
+            {saving && <Loader2 className="size-3.5 animate-spin" />} Create department
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }

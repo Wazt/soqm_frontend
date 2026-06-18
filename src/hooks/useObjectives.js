@@ -1,11 +1,8 @@
 import { useState, useEffect, useCallback } from "react"
-import { listComponents } from "@/api/endpoints/componentsApi"
+import { listObjectives } from "@/api/endpoints/objectivesApi"
 
-// Components list with a refetch handle so CRUD callers can refresh after a
-// mutation. The demo path simulates the real API, including 403 Access Denied
-// for roles without the component:read permission.
-export function useComponents() {
-  const [components, setComponents] = useState([])
+export function useObjectives() {
+  const [objectives, setObjectives] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -13,8 +10,8 @@ export function useComponents() {
     setLoading(true)
     setError(null)
     try {
-      const data = await listComponents()
-      if (!signal?.cancelled) setComponents(data)
+      const data = await listObjectives({ limit: 100 })
+      if (!signal?.cancelled) setObjectives(data)
     } catch (err) {
       if (!signal?.cancelled) setError(err)
     } finally {
@@ -28,5 +25,5 @@ export function useComponents() {
     return () => { signal.cancelled = true }
   }, [load])
 
-  return { components, loading, error, refetch: () => load() }
+  return { objectives, loading, error, refetch: () => load() }
 }

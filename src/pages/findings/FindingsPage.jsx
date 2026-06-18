@@ -140,7 +140,7 @@ const COLUMNS = [
     header: "Finding",
     render: (row) => (
       <div className="min-w-[260px] max-w-md">
-        <p className="font-medium text-[#1E0A3C]">{row.title}</p>
+        <p className="font-medium text-foreground">{row.title}</p>
         <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
           {row.detail}
         </p>
@@ -184,7 +184,7 @@ const COLUMNS = [
     key: "owner",
     header: "Owner",
     render: (row) => (
-      <span className="text-[#1E0A3C] whitespace-nowrap">{row.owner}</span>
+      <span className="text-foreground whitespace-nowrap">{row.owner}</span>
     ),
   },
   {

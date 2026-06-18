@@ -1,239 +1,124 @@
+import { useMemo } from "react"
 import { Link } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { useComponents } from "@/hooks/useComponents"
+import { useObjectives } from "@/hooks/useObjectives"
+import { useRisks } from "@/hooks/useRisks"
+import { useDepartments } from "@/hooks/useDepartments"
 import { ROUTES } from "@/router/routes"
-import { PageHeader } from "@/components/common/PageHeader"
+import { OBJECTIVE_STATUS, RISK_ZONE, riskZone, statusMeta } from "@/lib/status"
 import { StatCard } from "@/components/common/StatCard"
 import { StatusBadge } from "@/components/common/StatusBadge"
-import { Skeleton } from "@/components/ui/skeleton"
 import {
-  Layers,
-  Gauge,
-  Flag,
-  FileCheck2,
-  FileSearch,
-  ShieldCheck,
-  BellRing,
-  UploadCloud,
-  MessageSquareText,
+  Layers, Target, ShieldAlert, Building2, ArrowUpRight, ShieldCheck,
 } from "lucide-react"
 
-// Deterministic sample readiness % per component index (no live metric yet).
-const SAMPLE_READINESS = [86, 72, 94, 63, 78, 81, 57, 69]
-
-const SAMPLE_ACTIVITY = [
-  {
-    id: "act-1",
-    icon: FileCheck2,
-    chipBg: "bg-[#EDE9F8]",
-    chipText: "text-[#3B1F6A]",
-    title: "Document reviewed",
-    detail:
-      "Independence Confirmation — Cevital SPA 2025.pdf approved by Amina Bouchareb",
-    time: "12 min ago",
-  },
-  {
-    id: "act-2",
-    icon: Flag,
-    chipBg: "bg-[#FDE8F0]",
-    chipText: "text-[#7A1E3E]",
-    title: "Finding raised",
-    detail:
-      "F-2026-014 · Incomplete EQCR sign-off on Statutory Audit — Sonatrach Group 2025",
-    time: "1 h ago",
-  },
-  {
-    id: "act-3",
-    icon: ShieldCheck,
-    chipBg: "bg-[#EAF3EE]",
-    chipText: "text-[#1A4731]",
-    title: "EQR completed",
-    detail:
-      "Engagement quality review signed off for Statutory Audit — Air Algérie 2025 by Karim Benali",
-    time: "3 h ago",
-  },
-  {
-    id: "act-4",
-    icon: BellRing,
-    chipBg: "bg-[#FDF3E7]",
-    chipText: "text-[#7A3E0A]",
-    title: "Alert triggered",
-    detail:
-      "Client continuance reassessment due for NCA Rouiba SPA within 14 days",
-    time: "Yesterday",
-  },
-  {
-    id: "act-5",
-    icon: UploadCloud,
-    chipBg: "bg-[#E8F0FB]",
-    chipText: "text-[#1E3A6E]",
-    title: "Document ingested",
-    detail:
-      "Acceptance Questionnaire — Danone Djurdjura Algérie 2026.docx · INGESTED (1.8 MB)",
-    time: "2 days ago",
-  },
-  {
-    id: "act-6",
-    icon: FileSearch,
-    chipBg: "bg-[#E8F5F5]",
-    chipText: "text-[#1A4747]",
-    title: "Document reviewed",
-    detail:
-      "Group Audit Instructions — Lafarge Holcim Algérie 2025.pdf reviewed by Sofia Hadj-Ali",
-    time: "3 days ago",
-  },
-]
-
-const QUICK_ACTIONS = [
-  {
-    to: ROUTES.DOCUMENTS,
-    icon: UploadCloud,
-    title: "Upload a document for review",
-    description: "Send an engagement file into the quality review queue.",
-    cta: "Go to documents",
-  },
-  {
-    to: ROUTES.CHATBOT,
-    icon: MessageSquareText,
-    title: "Ask the SOQM Chatbot",
-    description: "Get answers grounded in your firm's quality policies.",
-    cta: "Open chatbot",
-  },
-  {
-    to: ROUTES.COMPONENTS,
-    icon: Layers,
-    title: "Browse SOQM components",
-    description: "Explore the 8 ISQM 1 components and their objectives.",
-    cta: "View components",
-  },
-]
-
-function SampleTag() {
-  return <StatusBadge tone="muted">Sample</StatusBadge>
+function greetingFor() {
+  const h = new Date().getHours()
+  if (h < 12) return "Good morning"
+  if (h < 18) return "Good afternoon"
+  return "Good evening"
 }
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { components, loading, error } = useComponents()
+  const { components } = useComponents()
+  const { objectives } = useObjectives()
+  const { risks } = useRisks()
+  const { departments } = useDepartments()
 
-  const roleLabel = user?.role ? user.role.replace(/_/g, " ") : null
-  const greeting = user?.email
-    ? `Welcome back — signed in as ${user.email}${roleLabel ? ` · ${roleLabel}` : ""}`
-    : "Welcome back to your System of Quality Management overview."
+  const firstName = user?.name?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "there"
+
+  const activeComponents = components.filter((c) => c.status === "ACTIVE").length
+  const openRisks = risks.filter((r) => !["closed", "accepted"].includes(r.status)).length
+
+  const riskZones = useMemo(() => {
+    const z = { critical: 0, high: 0, low: 0 }
+    for (const r of risks) z[riskZone(r.occurence, r.significance)] += 1
+    return z
+  }, [risks])
+
+  const objectiveBreakdown = useMemo(() => {
+    const counts = {}
+    for (const o of objectives) counts[o.status] = (counts[o.status] ?? 0) + 1
+    return Object.entries(OBJECTIVE_STATUS)
+      .map(([key, meta]) => ({ key, meta, count: counts[key] ?? 0 }))
+      .filter((x) => x.count > 0)
+  }, [objectives])
+
+  const topRisks = useMemo(
+    () =>
+      risks
+        .map((r) => ({ ...r, score: r.occurence * r.significance }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5),
+    [risks]
+  )
+
+  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Quality Dashboard" description={greeting} />
-
-      {/* Stat row */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="SOQM Components"
-          value={
-            loading ? (
-              <Skeleton className="h-8 w-12" />
-            ) : error ? (
-              "—"
-            ) : (
-              components.length
-            )
-          }
-          hint={error ? "Couldn't reach the API" : "Live from the SOQM API"}
-          icon={Layers}
-          tone="purple"
-        />
-        <StatCard
-          label="Overall Quality Score"
-          value="87%"
-          hint="+2 pts vs. last quarter"
-          icon={Gauge}
-          tone="success"
-        >
-          <div>
-            <SampleTag />
-          </div>
-        </StatCard>
-        <StatCard
-          label="Open Findings"
-          value="6"
-          hint="2 high severity"
-          icon={Flag}
-          tone="warning"
-        >
-          <div>
-            <SampleTag />
-          </div>
-        </StatCard>
-        <StatCard
-          label="Documents Reviewed"
-          value="124"
-          hint="18 this month"
-          icon={FileCheck2}
-          tone="info"
-        >
-          <div>
-            <SampleTag />
-          </div>
-        </StatCard>
+      {/* Greeting */}
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{greetingFor()}, {firstName}.</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{today} · System of Quality Management overview</p>
+        </div>
+        <StatusBadge tone="purple" withDot>{user?.role?.replace(/_/g, " ") ?? "Member"}</StatusBadge>
       </div>
 
-      {/* Two-column section */}
-      <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
-        {/* Component Readiness */}
-        <div className="rounded-xl border border-border bg-white p-5">
-          <div className="flex items-start justify-between gap-3 mb-4">
-            <div>
-              <h2 className="text-sm font-semibold text-[#1E0A3C]">
-                Component Readiness
-              </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Design and implementation progress across the ISQM 1 components
-              </p>
-            </div>
-            <SampleTag />
-          </div>
+      {/* KPIs */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard label="Active components" value={`${activeComponents} / 8`} hint="ISQM 1 coverage" icon={Layers} tone="purple" />
+        <StatCard label="Quality objectives" value={objectives.length} hint={`${objectives.filter((o) => o.status === "active").length} active`} icon={Target} tone="info" />
+        <StatCard label="Open risks" value={openRisks} hint={`${riskZones.critical} critical`} icon={ShieldAlert} tone="danger" />
+        <StatCard label="Departments" value={departments.length} hint={`${departments.filter((d) => !d.parent_dept).length} top-level`} icon={Building2} tone="teal" />
+      </div>
 
-          {loading ? (
-            <div className="space-y-4">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="space-y-1.5">
-                  <div className="flex items-center justify-between gap-3">
-                    <Skeleton className="h-4 w-2/3" />
-                    <Skeleton className="h-4 w-8" />
-                  </div>
-                  <Skeleton className="h-1.5 w-full rounded-full" />
+      <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
+        {/* Risk distribution donut */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h2 className="text-sm font-semibold text-foreground">Risk distribution</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">By heat-map zone (occurrence × significance)</p>
+          <div className="mt-4 flex items-center gap-5">
+            <Donut zones={riskZones} total={risks.length} />
+            <div className="space-y-2">
+              {["critical", "high", "low"].map((z) => (
+                <div key={z} className="flex items-center gap-2 text-sm">
+                  <span className={`size-2.5 rounded-full ${RISK_ZONE[z].dot}`} />
+                  <span className="text-foreground">{RISK_ZONE[z].label}</span>
+                  <span className="text-muted-foreground">· {riskZones[z]}</span>
                 </div>
               ))}
             </div>
-          ) : error ? (
-            <p className="text-sm text-muted-foreground py-6 text-center">
-              Couldn't load components from the API
-            </p>
+          </div>
+        </div>
+
+        {/* Objective workflow breakdown */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-foreground">Objectives by workflow state</h2>
+            <Link to={ROUTES.OBJECTIVES} className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+              View all <ArrowUpRight className="size-3.5" />
+            </Link>
+          </div>
+          {objectiveBreakdown.length === 0 ? (
+            <p className="mt-6 text-center text-sm text-muted-foreground">No objectives yet.</p>
           ) : (
-            <div className="space-y-4">
-              {components.map((component, index) => {
-                const readiness =
-                  SAMPLE_READINESS[index % SAMPLE_READINESS.length]
+            <div className="mt-4 space-y-3">
+              {objectiveBreakdown.map(({ key, meta, count }) => {
+                const pct = objectives.length ? Math.round((count / objectives.length) * 100) : 0
                 return (
-                  <div key={component.id} className="space-y-1.5">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-sm text-[#1E0A3C] truncate">
-                          {component.name}
-                        </span>
-                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#EDE9F8] text-[#3B1F6A] shrink-0">
-                          {component.isqm_reference}
-                        </span>
-                      </div>
-                      <span className="text-xs font-medium text-[#3B1F6A] tabular-nums shrink-0">
-                        {readiness}%
+                  <div key={key} className="space-y-1.5">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <StatusBadge tone={meta.tone} withDot>{meta.label}</StatusBadge>
                       </span>
+                      <span className="tabular-nums text-muted-foreground">{count} · {pct}%</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-[#EDE9F8] overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-[#7B3FBE]"
-                        style={{ width: `${readiness}%` }}
-                      />
+                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div className={`h-full rounded-full ${toneBar(meta.tone)}`} style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 )
@@ -241,80 +126,112 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
-
-        {/* Recent Quality Activity */}
-        <div className="rounded-xl border border-border bg-white p-5">
-          <div className="flex items-start justify-between gap-3 mb-2">
-            <div>
-              <h2 className="text-sm font-semibold text-[#1E0A3C]">
-                Recent Quality Activity
-              </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Latest events across the firm's SOQM
-              </p>
-            </div>
-            <SampleTag />
-          </div>
-
-          <div className="divide-y divide-border">
-            {SAMPLE_ACTIVITY.map((event) => (
-              <div key={event.id} className="flex items-start gap-3 py-3 last:pb-0">
-                <div
-                  className={`flex size-8 items-center justify-center rounded-lg shrink-0 ${event.chipBg}`}
-                >
-                  <event.icon className={`size-4 ${event.chipText}`} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-[13px] font-medium text-[#1E0A3C]">
-                      {event.title}
-                    </p>
-                    <span className="text-[11px] text-muted-foreground shrink-0">
-                      {event.time}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                    {event.detail}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
-      {/* Quick Actions */}
-      <div>
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">
-          Quick Actions
-        </p>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {QUICK_ACTIONS.map((action) => (
-            <Link
-              key={action.to}
-              to={action.to}
-              className="group relative flex flex-col gap-3 rounded-xl border border-border bg-white p-5 hover:border-[#C4B0E8] hover:shadow-md transition-all duration-200"
-            >
-              <div className="flex size-9 items-center justify-center rounded-lg bg-[#EDE9F8]">
-                <action.icon className="size-5 text-[#7B3FBE]" />
-              </div>
-              <div className="space-y-1 pb-4">
-                <h3 className="text-sm font-medium text-[#1E0A3C]">
-                  {action.title}
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {action.description}
-                </p>
-              </div>
-              <div className="absolute bottom-4 right-5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-[11px] text-[#7B3FBE] font-medium">
-                  {action.cta} →
-                </span>
-              </div>
+      {/* Top risks + quick links */}
+      <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-foreground">Top open risks</h2>
+            <Link to={ROUTES.RISKS} className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+              Risk matrix <ArrowUpRight className="size-3.5" />
             </Link>
-          ))}
+          </div>
+          {topRisks.length === 0 ? (
+            <p className="mt-6 text-center text-sm text-muted-foreground">No risks recorded.</p>
+          ) : (
+            <ul className="mt-3 divide-y divide-border">
+              {topRisks.map((r) => {
+                const zone = RISK_ZONE[riskZone(r.occurence, r.significance)]
+                return (
+                  <li key={r.id} className="flex items-center gap-3 py-2.5">
+                    <span className={`size-2 shrink-0 rounded-full ${zone.dot}`} />
+                    <span className="font-mono text-xs text-muted-foreground">{r.risk_ref}</span>
+                    <span className="flex-1 truncate text-sm text-foreground">{r.risk_discription}</span>
+                    <StatusBadge tone={zone.tone}>{zone.label} · {r.score}</StatusBadge>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h2 className="text-sm font-semibold text-foreground">Jump back in</h2>
+          <div className="mt-3 space-y-2">
+            <QuickLink to={ROUTES.COMPONENTS} icon={ShieldCheck} title="SOQM components" desc="The 8 ISQM 1 components" />
+            <QuickLink to={ROUTES.OBJECTIVES} icon={Target} title="Quality objectives" desc="Workflow & reviews" />
+            <QuickLink to={ROUTES.RISKS} icon={ShieldAlert} title="Risk matrix" desc="Assess & track risks" />
+            <QuickLink to={ROUTES.DEPARTMENTS} icon={Building2} title="Departments" desc="Org structure" />
+          </div>
         </div>
       </div>
     </div>
+  )
+}
+
+function toneBar(tone) {
+  return {
+    purple: "bg-[#7B3FBE]",
+    info: "bg-[#3B6FBE]",
+    success: "bg-[#2E9E6B]",
+    warning: "bg-[#D4820A]",
+    danger: "bg-[#E24B4A]",
+    teal: "bg-[#2E8080]",
+    muted: "bg-muted-foreground/40",
+  }[tone] ?? "bg-primary"
+}
+
+function Donut({ zones, total }) {
+  const colors = { critical: "#E24B4A", high: "#D4820A", low: "#2E9E6B" }
+  const order = ["critical", "high", "low"]
+  const r = 52
+  const c = 2 * Math.PI * r
+  let offset = 0
+  const segments = total
+    ? order.map((z) => {
+        const frac = zones[z] / total
+        const seg = { z, dash: frac * c, offset }
+        offset += frac * c
+        return seg
+      })
+    : []
+
+  return (
+    <div className="relative size-32 shrink-0">
+      <svg viewBox="0 0 128 128" className="size-32 -rotate-90">
+        <circle cx="64" cy="64" r={r} fill="none" stroke="var(--muted)" strokeWidth="14" />
+        {segments.map((s) => (
+          <circle
+            key={s.z}
+            cx="64" cy="64" r={r}
+            fill="none"
+            stroke={colors[s.z]}
+            strokeWidth="14"
+            strokeDasharray={`${s.dash} ${c - s.dash}`}
+            strokeDashoffset={-s.offset}
+          />
+        ))}
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-2xl font-semibold text-foreground">{total}</span>
+        <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Risks</span>
+      </div>
+    </div>
+  )
+}
+
+function QuickLink({ to, icon: Icon, title, desc }) {
+  return (
+    <Link to={to} className="group flex items-center gap-3 rounded-lg border border-border bg-background px-3 py-2.5 transition-colors hover:border-primary/40 hover:bg-muted/40">
+      <div className="flex size-8 items-center justify-center rounded-lg bg-[#EDE9F8]">
+        <Icon className="size-4 text-[#7B3FBE]" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-medium text-foreground">{title}</p>
+        <p className="text-xs text-muted-foreground">{desc}</p>
+      </div>
+      <ArrowUpRight className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+    </Link>
   )
 }

@@ -41,7 +41,7 @@ const navigation = [
     label: "Organization",
     items: [
       { title: "Departments", href: "/departments", icon: Building2 },
-      { title: "Employees & Roles", href: "/employees", icon: Users },
+      { title: "Users & Roles", href: "/users", icon: Users },
     ],
   },
   {

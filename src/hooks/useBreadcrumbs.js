@@ -4,6 +4,7 @@ const ROUTE_LABELS = {
   "":           "Dashboard",
   "dashboard":  "Dashboard",
   "departments": "Departments",
+  "users":      "Users & Roles",
   "employees":  "Employees & Roles",
   "components": "SOQM Components",
   "objectives": "Quality Objectives",
@@ -29,8 +30,10 @@ export function useBreadcrumbs() {
     return [{ label: "Dashboard", href: "/" }]
   }
 
+  const isId = (s) => /^[0-9a-f]{8}-/i.test(s) || /^\d+$/.test(s)
+
   return segments.map((segment, index) => ({
-    label: ROUTE_LABELS[segment] ?? segment.charAt(0).toUpperCase() + segment.slice(1),
+    label: ROUTE_LABELS[segment] ?? (isId(segment) ? "Details" : segment.charAt(0).toUpperCase() + segment.slice(1)),
     href: "/" + segments.slice(0, index + 1).join("/"),
   }))
 }

@@ -114,7 +114,7 @@ function formatDate(iso) {
 function ActivityCard({ activity }) {
   const Icon = activity.icon
   return (
-    <div className="rounded-xl border border-border bg-white p-5 hover:border-[#C4B0E8] hover:shadow-md transition-all">
+    <div className="rounded-xl border border-border bg-card p-5 hover:border-[#C4B0E8] hover:shadow-md transition-all">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         {/* Name + scope */}
         <div className="flex items-start gap-3 min-w-0">
@@ -123,7 +123,7 @@ function ActivityCard({ activity }) {
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-sm font-medium text-[#1E0A3C]">
+              <h3 className="text-sm font-medium text-foreground">
                 {activity.name}
               </h3>
               <StatusBadge tone={FREQUENCY_TONES[activity.frequency]}>
@@ -142,7 +142,7 @@ function ActivityCard({ activity }) {
             <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
               Last run
             </p>
-            <p className="text-sm text-[#1E0A3C] mt-0.5 whitespace-nowrap">
+            <p className="text-sm text-foreground mt-0.5 whitespace-nowrap">
               {formatDate(activity.lastRun)}
             </p>
           </div>
@@ -165,7 +165,7 @@ function ActivityCard({ activity }) {
             <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
               Evidence
             </p>
-            <p className="flex items-center gap-1.5 text-sm text-[#1E0A3C] mt-0.5 whitespace-nowrap">
+            <p className="flex items-center gap-1.5 text-sm text-foreground mt-0.5 whitespace-nowrap">
               <Paperclip className="size-4 text-[#7B3FBE]" />
               {activity.evidenceCount} items
             </p>

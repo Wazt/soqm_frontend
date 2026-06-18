@@ -110,7 +110,7 @@ export default function DocumentsPage() {
               <Icon className="size-4 text-[#3B1F6A]" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-medium text-[#1E0A3C] truncate max-w-[26rem]">
+              <p className="text-sm font-medium text-foreground truncate max-w-[26rem]">
                 {row.name}
               </p>
               <p className="text-xs text-muted-foreground">
@@ -133,7 +133,7 @@ export default function DocumentsPage() {
       header: "Uploaded",
       render: (row) => (
         <div>
-          <p className="text-sm text-[#1E0A3C]">{row.uploadedAt}</p>
+          <p className="text-sm text-foreground">{row.uploadedAt}</p>
           <p className="text-xs text-muted-foreground">by {row.uploadedBy}</p>
         </div>
       ),
@@ -203,14 +203,14 @@ export default function DocumentsPage() {
         className={`flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 text-center cursor-pointer transition-all ${
           dragActive
             ? "border-[#7B3FBE] bg-[#F7F4FC]"
-            : "border-[#C4B0E8] bg-white hover:bg-[#F7F4FC]"
+            : "border-[#C4B0E8] bg-card hover:bg-[#F7F4FC]"
         }`}
       >
         <div className="flex size-11 items-center justify-center rounded-xl bg-[#EDE9F8]">
           <Upload className="size-5 text-[#7B3FBE]" />
         </div>
         <div className="space-y-1">
-          <p className="text-sm font-medium text-[#1E0A3C]">
+          <p className="text-sm font-medium text-foreground">
             Drop your final work here or{" "}
             <span className="text-[#7B3FBE] underline underline-offset-2">
               browse

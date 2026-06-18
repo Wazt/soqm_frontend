@@ -2,7 +2,7 @@
 // columns: [{ key, header, className?, render?(row) }]
 export function DataTable({ columns, rows, rowKey = "id", onRowClick, footer }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-white">
+    <div className="overflow-hidden rounded-xl border border-border bg-card">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -23,7 +23,7 @@ export function DataTable({ columns, rows, rowKey = "id", onRowClick, footer }) 
                 key={row[rowKey]}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
                 className={`border-b border-border last:border-b-0 ${
-                  onRowClick ? "cursor-pointer hover:bg-[#F7F4FC] transition-colors" : ""
+                  onRowClick ? "cursor-pointer hover:bg-muted/50 transition-colors" : ""
                 }`}
               >
                 {columns.map((col) => (

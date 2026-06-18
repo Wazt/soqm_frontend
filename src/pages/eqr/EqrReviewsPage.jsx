@@ -113,7 +113,7 @@ const COLUMNS = [
     header: "Engagement",
     render: (row) => (
       <div className="min-w-[220px]">
-        <p className="font-medium text-[#1E0A3C]">{row.engagement}</p>
+        <p className="font-medium text-foreground">{row.engagement}</p>
         <p className="text-xs text-muted-foreground mt-0.5">{row.client}</p>
       </div>
     ),
@@ -121,12 +121,12 @@ const COLUMNS = [
   {
     key: "partner",
     header: "Engagement partner",
-    render: (row) => <span className="text-[#1E0A3C]">{row.partner}</span>,
+    render: (row) => <span className="text-foreground">{row.partner}</span>,
   },
   {
     key: "reviewer",
     header: "EQ reviewer",
-    render: (row) => <span className="text-[#1E0A3C]">{row.reviewer}</span>,
+    render: (row) => <span className="text-foreground">{row.reviewer}</span>,
   },
   {
     key: "stage",

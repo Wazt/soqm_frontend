@@ -135,7 +135,7 @@ const COLUMNS = [
     header: "Procedure",
     render: (row) => (
       <div className="min-w-[220px]">
-        <p className="text-sm font-medium text-[#1E0A3C] leading-snug">{row.title}</p>
+        <p className="text-sm font-medium text-foreground leading-snug">{row.title}</p>
         <p className="text-xs text-muted-foreground mt-0.5">{row.process}</p>
       </div>
     ),
@@ -161,7 +161,7 @@ const COLUMNS = [
   {
     key: "owner",
     header: "Owner",
-    render: (row) => <span className="text-sm text-[#1E0A3C]">{row.owner}</span>,
+    render: (row) => <span className="text-sm text-foreground">{row.owner}</span>,
   },
   {
     key: "reviewCycle",

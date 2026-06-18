@@ -151,7 +151,7 @@ const COLUMNS = [
           {initialsOf(row.name)}
         </div>
         <div>
-          <p className="text-sm font-medium text-[#1E0A3C]">{row.name}</p>
+          <p className="text-sm font-medium text-foreground">{row.name}</p>
           <p className="text-xs text-muted-foreground">{row.email}</p>
         </div>
       </div>
@@ -161,7 +161,7 @@ const COLUMNS = [
     key: "department",
     header: "Department",
     render: (row) => (
-      <span className="text-sm text-[#1E0A3C]">{row.department}</span>
+      <span className="text-sm text-foreground">{row.department}</span>
     ),
   },
   {
@@ -262,7 +262,7 @@ export default function EmployeesPage() {
             placeholder="Search by name or email…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="pl-8 bg-white"
+            className="pl-8 bg-card"
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -276,7 +276,7 @@ export default function EmployeesPage() {
                 className={`text-[11px] font-medium px-2.5 py-1 rounded-full border transition-colors ${
                   isActive
                     ? "bg-[#3B1F6A] border-[#3B1F6A] text-white"
-                    : "bg-white border-border text-muted-foreground hover:bg-[#F7F4FC] hover:text-[#3B1F6A]"
+                    : "bg-card border-border text-muted-foreground hover:bg-[#F7F4FC] hover:text-[#3B1F6A]"
                 }`}
               >
                 {role === "All" ? "All" : formatRole(role)}

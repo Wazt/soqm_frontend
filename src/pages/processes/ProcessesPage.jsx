@@ -150,7 +150,7 @@ export default function ProcessesPage() {
           return (
             <div
               key={process.id}
-              className="group rounded-xl border border-border bg-white p-5 hover:border-[#C4B0E8] hover:shadow-md transition-all"
+              className="group rounded-xl border border-border bg-card p-5 hover:border-[#C4B0E8] hover:shadow-md transition-all"
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 {/* Identity */}
@@ -167,7 +167,7 @@ export default function ProcessesPage() {
                         {process.status}
                       </StatusBadge>
                     </div>
-                    <h3 className="text-sm font-medium text-[#1E0A3C] leading-snug">
+                    <h3 className="text-sm font-medium text-foreground leading-snug">
                       {process.name}
                     </h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
@@ -181,7 +181,7 @@ export default function ProcessesPage() {
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
                     Owner
                   </p>
-                  <p className="text-sm font-medium text-[#1E0A3C] mt-1">{process.owner}</p>
+                  <p className="text-sm font-medium text-foreground mt-1">{process.owner}</p>
                   <p className="text-xs text-muted-foreground">{process.ownerRole}</p>
                 </div>
               </div>

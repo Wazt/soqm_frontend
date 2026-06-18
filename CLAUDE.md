@@ -33,15 +33,25 @@ src/
   proxying is required in dev)
 - .env.production    → real backend URL (never committed)
 
-# Backend Contract (soqm_backend — FastAPI on :8000, base path /api/v1)
-- POST /auth/login/   {email, password} → {access_token}; sets httpOnly refresh_token cookie
-- POST /auth/refresh/ (cookie)          → {access_token}; rotates the cookie
-- GET  /components    (Bearer)          → [{id, name, isqm_reference}]
-- Trailing slashes matter: auth routes have them, /components does not
-- App errors: {message, details}; missing-auth-header: 403 {detail}; validation: 422 {detail: [...]}
-- No /me endpoint — user identity (sub, email, role) is decoded from the access JWT
-- All other modules (documents, objectives, risks, …) have NO endpoints yet —
-  their pages are sample-data previews marked with <PreviewBanner />
+# Backend Contract (refactored soqm_backend — FastAPI on :8000, base path /api/v1, CORS for :5173)
+- Auth: POST /auth/login/ {email,password}→{access_token}+httpOnly refresh cookie; POST /auth/refresh/;
+  POST /auth/register/ {first_name,last_name,email,password,role_id}; GET /auth/list?page&limit;
+  PATCH /auth/{id}/block/; GET /auth/roles→[{id,name}]; POST /auth/{id}/roles/ {role_id}.
+  NO generic user PUT/DELETE — only register + block + assign-role.
+- Components: GET /components (perm component:read); POST /components/; GET /components/{id};
+  PATCH /components/{id}/; DELETE /components/{id}/. status ∈ ACTIVE|IN_ACTIVE|ARCHIVED
+  (state machine ACTIVE↔IN_ACTIVE, both→ARCHIVED terminal). Max 8; delete only when ARCHIVED. display_order 1-8.
+- Objectives (no auth yet): GET /objectives?page&limit; POST /objectives/; GET /objectives/{id};
+  PATCH /objectives/{id}/; DELETE /objectives/{id}/. 9 states draft→approved→active↔under_review→revised,
+  active/suspended→archived. Edit/delete only while draft.
+- Risks: POST /risks/ only (GET not implemented → degrade gracefully). score = occurence × significance (1-9).
+- Departments: GET /organization/departments; POST /organization/departments/; GET /{id}. children_dept hierarchy.
+- Roles: SUPER_ADMIN, ADMIN, MANAGER, REVIEWER, OPERATOR, QUALITY_CHAMPION, VIEWER (seeded perms: admins=all,
+  MANAGER=auth:read+component:read, OPERATOR=component:read, rest=none).
+- Trailing slashes matter (see above). Errors: {message, code, details}; validation 422 {message, errors:[...]}.
+- No /me endpoint — identity (sub, email, role) decoded from the access JWT.
+- src/lib/status.js mirrors all enums + state machines; src/lib/demo.js is a faithful in-memory simulator.
+- Remaining preview-only pages (documents, processes, eqr, findings, …) still use <PreviewBanner /> sample data.
 
 # API Layer
 - src/api/axiosClient.js is the base Axios instance
